@@ -1,0 +1,109 @@
+<html ng-app="listaTelefonica">
+<head>
+	<meta charset="utf-8">
+	<title>Lista Telefônica</title>
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css">
+	<style>
+		.jumbotron {
+			width: 400px;
+			text-align: center;
+			margin-top: 20px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.table {
+			margin-top: 20px;
+		}
+		.form-control {
+			margin-bottom: 5px;
+		}
+		.selecionado {
+			background-color: yellow;
+		}
+		.negrito {
+			font-style: bold;
+		}
+	</style>
+	<script src="lib/angular/angular.js"></script>
+	<script>
+		angular.module("listaTelefonica", []);
+		angular.module("listaTelefonica").controller("listaTelefonicaController",
+			function ($scope) {
+				$scope.app = "Lista Telefônica";
+				$scope.contatos = [
+										{nome: "André", telefone: "98119-4656", cor: 'blue'},
+										{nome: "Ana", telefone: "98134-4478", cor: 'pink'},
+										{nome: "Miguel", telefone: "99181-8877", cor: 'green'},
+										{nome: "Leandra", telefone: "99995-9988", cor: 'red'}
+								  ];
+				$scope.operadoras = [
+										{nome: "Oi", codigo: 31, categoria: "Celular"},
+										{nome: "Vivo", codigo: 15, categoria: "Celular"},
+										{nome: "Tim", codigo: 41, categoria: "Celular"},
+										{nome: "Claro", codigo: 21, categoria: "Celular"},
+										{nome: "NET", codigo: 21, categoria: "Fixo"},
+										{nome: "GVT", codigo: 25, categoria: "Fixo"},
+										{nome: "Oi", codigo: 31, categoria: "Fixo"},
+
+									];
+				$scope.adicionarContato = function (contato) {
+					$scope.contatos.push(angular.copy(contato));
+					delete $scope.contato;
+					$scope.contatoForm.$setPristine();
+				}
+				$scope.apagarContatos = function (contatos) {
+					$scope.contatos = contatos.filter(function (contato) {
+						if (!contato.selecionado) return contato;
+					});
+				}
+				$scope.isContatoSelecionado = function (contatos) {
+					return contatos.some(function (contato) {
+						return contato.selecionado;
+					});
+				}
+			}
+		);
+	</script>
+</head>
+<body ng-controller="listaTelefonicaController">
+	<div class="jumbotron">
+		<h3>{{app}}</h3>
+		<table class="table" ng-show="contatos.length > 0">
+			<tr>
+				<th></th>
+				<th>Nome</th>
+				<th>Telefone</th>
+				<th>Operadora</th>
+				<th></th>
+			</tr>
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos">
+				<td><input type="checkbox" ng-model="contato.selecionado"></td>
+				<td>{{contato.nome}}</td>
+				<td>{{contato.telefone}}</td>
+				<td>{{contato.operadora.nome}}</td>
+				<td><div style="width: 20px; height: 20px" ng-style="{'background-color': contato.cor}"></div></td>
+			</tr>
+		</table>
+		<hr/>
+		<form name="contatoForm">
+			<input class="form-control" type="text" ng-model="contato.nome" name="nome" placeholder="Nome" required="true">
+			<div ng-show="contatoForm.nome.$invalid && contatoForm.nome.$dirty" class="alert alert-danger">
+				Preencha um nome!
+			</div>
+			<input class="form-control" type="telefone" ng-model="contato.telefone" name="telefone" placeholder="Telefone" required="true">
+			<div ng-show="contatoForm.telefone.$invalid && contatoForm.telefone.$dirty" class="alert alert-danger">
+				Preencha um telefone!
+			</div>
+			<select class="form-control" ng-model="contato.operadora" name="operadora" ng-options="operadora.nome group by operadora.categoria for operadora in operadoras" required="true">
+				<option value="">Selecione uma operadora...</option>
+			</select>
+			<div ng-show="contatoForm.operadora.$invalid && contatoForm.operadora.$dirty" class="alert alert-danger">
+				Selecione a operadora!
+			</div>
+		</form>
+		<button ng-click="adicionarContato(contato)" ng-disabled="!contato.nome || !contato.telefone || !contato.operadora" class="btn btn-primary btn-block">Adicionar contato</button>
+		<button ng-click="apagarContatos(contatos)" ng-if="isContatoSelecionado(contatos)" class="btn btn-danger btn-block">Apagar contatos</button>
+	</div>
+	<div ng-include="'footer.html'"></div>
+</body>
+</html>
